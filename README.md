@@ -3,7 +3,7 @@ Moteur de recherche RAG 100% local appliqué aux boissons.
 Une architecture 3-Tier associant SQL Server, Python et Streamlit. L'application utilise Ollama (nomic-embed-text et llama3) pour comprendre l'intention de l'utilisateur et générer des réponses adaptées sans aucune API cloud payante.
 
 # Inspiration de ce projet
-J'ai suivie chez microsoft un mini cours intitulé Data Pro - Implémenter des capacités d’IA dans les solutions SQL Server lors du AI Skills Fest, malheureusement, je n'ai pas pu réalisé pour l'instant l'exercice que je vous laisse dans le dossier SQLAI mais qui m'a inspiré à réalisé celui ci. Un projet qui n'a donc pas besoin d'un abonnement Azure.
+J'ai suivie chez microsoft un mini cours intitulé Data Pro - Implémenter des capacités d’IA dans les solutions SQL Server lors du AI Skills Fest, malheureusement, je n'ai pas pu réalisé pour l'instant l'exercice que je vous laisse dans la branche ExerciceMicrosoft mais qui m'a inspiré à réalisé celui ci. Un projet qui n'a donc pas besoin d'un abonnement Azure.
 
 # 🍵 Moteur de Recherche Sémantique & RAG Local — Boissons Bien-Être
 
