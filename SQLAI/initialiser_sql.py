@@ -1,6 +1,7 @@
-import pyodbc
+import sqlite3
 import requests
 import json
+import os
 
 def get_embedding(texte):
     '''
@@ -18,26 +19,29 @@ def connecter_et_vectoriser():
     Se connecte à SQL Server, récupère les boissons sans vecteur,
     génère l'embedding et met à jour la base de données.
     '''
-    
-    # 1. Connexion à ton SQL Server Local (Authentification Windows complète)
-    conn_str = (
-        "Driver={ODBC Driver 17 for SQL Server};"
-        "Server=localhost;"
-        "Database=master;" # Remplace par le nom de ta base si nécessaire
-        "Trusted_Connection=yes;"
-    )
-    
     try:
-        conn = pyodbc.connect(conn_str)
+        base_existe = os.path.exists("boissons.db")
+        # 1. Crée le fichier de base de données directement dans ton dossier !
+        conn = sqlite3.connect("boissons.db")
         cursor = conn.cursor()
-        print("⚡ Connexion à SQL Server réussie !")
         
-        # 2. Sélectionner les boissons qui n'ont pas encore de vecteur
-        cursor.execute("SELECT BoissonID, Nom, Description FROM dbo.BoissonsBienEtre WHERE VectorText IS NULL")
+        if not base_existe:
+            print("📜 Initialisation de la base avec le fichier SQL...")
+            with open("cacao_rag_full.sql", "r", encoding="utf-8") as f:
+                script_sql = f.read()
+            
+            # executescript permet de lancer tout le fichier d'un seul coup
+            cursor.executescript(script_sql)
+            conn.commit()
+            print("✅ Table créée et boissons insérées !")
+
+        # 2. Sélection des boissons à vectoriser (le reste ne change pas)
+        cursor.execute("SELECT BoissonID, Nom, Description FROM BoissonsBienEtre WHERE VectorText IS NULL")
         lignes = cursor.fetchall()
         
         if not lignes:
             print("✅ Toutes les boissons sont déjà vectorisées.")
+            
             return
 
         print(f"🔄 {len(lignes)} boisson(s) à vectoriser...")
@@ -45,24 +49,12 @@ def connecter_et_vectoriser():
         # 3. Boucle de mise à jour
         for ligne in lignes:
             boisson_id, nom, description = ligne
-            texte_a_vectoriser = f"{nom} | {description}"
-            
-            # Génération du vecteur
-            vecteur = get_embedding(texte_a_vectoriser)
-            
-            # Transformation de la liste de floats en texte JSON pour le stocker dans le NVARCHAR(MAX)
-            vecteur_json = json.dumps(vecteur)
-            
-            # Enregistrement dans le SQL
-            cursor.execute(
-                "UPDATE dbo.BoissonsBienEtre SET VectorText = ? WHERE BoissonID = ?",
-                (vecteur_json, boisson_id)
-            )
+            vecteur = get_embedding(f"{nom} | {description}")
+            cursor.execute("UPDATE BoissonsBienEtre SET VectorText = ? WHERE BoissonID = ?", (json.dumps(vecteur), boisson_id))
             print(f"✨ Vecteur enregistré pour : {nom}")
             
-        # Validation des changements
         conn.commit()
-        print("💾 Base de données mise à jour et sauvegardée avec succès !")
+        print("💾 Base SQLite mise à jour avec succès !")
         
     except Exception as e:
         print(f"❌ Erreur : {e}")
