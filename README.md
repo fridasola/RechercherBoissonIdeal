@@ -43,19 +43,32 @@ Le projet est structuré selon une architecture standard à 3 couches :
 
 ## Installation et Lancement
 
-### 1. Prérequis
-* Avoir installé [Ollama](https://ollama.com/) et récupéré les modèles requis à executer dans votre cmd :
-    ```
-    ollama run nomic-embed-text
-    ollama run llama3
-    ```
-* Un serveur **SQL Server** local actif.
-
-### 2. Configuration de la Base de Données
-Exécutez le script contenu dans 'cacao_rag_full.sql' sur votre instance SQL Server pour initialiser la table.
-
-### 3. Installation des dépendances Python
-Installez les packages nécessaires à l'aide de 'pip' :
+# 1. Prérequis et installation des dépendances
+Assurez-vous d'avoir installé Python ainsi que les bibliothèques nécessaires. Vous pouvez les installer via votre terminal :   
+```Bash
+pip install streamlit requests numpy
 ```
-pip install streamlit requests numpy pyod
+# 2. Configuration d'Ollama
+Le projet utilise Ollama localement pour générer les embeddings et les réponses textuelles.   
+Téléchargez et lancez Ollama.
+Téléchargez les modèles requis en exécutant ces commandes dans votre terminal :
+```Bash
+ollama pull nomic-embed-text
+ollama pull llama3
 ```
+# 3. Initialisation de la base de données
+Placez les trois fichiers fournis (cacao_rag_full.sql, initialiser_sql.py et app.py) dans le même dossier. 
+Ensuite, exécutez le script d'initialisation pour créer la base SQLite (boissons.db) et vectoriser le catalogue :   
+```Bash
+python initialiser_sql.py
+```
+# 4. Lancement de l'application Streamlit
+Une fois la base initialisée, démarrez l'interface graphique avec Streamlit :   
+```Bash
+streamlit run app.py
+```
+Ou si celà ne fonctionnne pas:
+```Bash
+python -m streamlit run app.py
+```
+Cela ouvrira automatiquement une page web dans votre navigateur où vous pourrez tester la recherche sémantique sur les boissons.
